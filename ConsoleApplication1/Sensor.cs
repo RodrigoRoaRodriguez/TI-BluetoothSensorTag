@@ -11,11 +11,11 @@ namespace UUID_Test
         // Format: Name = UUID - TI_BASE_UUID 
         Accelerometer = 0xaa10,
         Gyroscope = 0xAA50,
-        Humidity= 0xAA20,
-        Keys = 0xFFE0, 
+        Humidity = 0xAA20,
+        Keys = 0xFFE0,
         Magnetometer = 0xAA30,
         Pressure = 0xAA40,
-        Temperature = 0xAA00 ,
+        Temperature = 0xAA00,
         TestService = 0xAA60
         // UUID for Over-The-Air-Dowload firmware service was intentionally ommited so that no one accidentally bricks a tag.
     }
@@ -31,12 +31,16 @@ namespace UUID_Test
 
         public static String GetServiceUUID(this Sensor sensor)
         {
+            if (Sensor.Keys == sensor)
+                return "0000ffe0-0000-1000-8000-00805f9b34fb";
             return TI_BASE_UUID.Replace("XXXX", ((int)sensor).ToString("x4"));
         }
 
         public static String GetDataUUID(this Sensor sensor)
         {
-            return TI_BASE_UUID.Replace("XXXX", ((int)sensor+1).ToString("x4"));
+            if (Sensor.Keys == sensor)
+                return "0000ffe1-0000-1000-8000-00805f9b34fb";
+            return TI_BASE_UUID.Replace("XXXX", ((int)sensor + 1).ToString("x4"));
         }
     }
 }
