@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 using Windows.Storage.Streams;
+using TI_BluetootLE_Tag;
 
-namespace UUID_Test
+namespace BLE_Utilities
 {
-    class Program
+    class BLE_Utilities
     {
         public class SensorValueChangedEventArgs : EventArgs
         {
@@ -37,45 +38,49 @@ namespace UUID_Test
                 //NEW CODE: USING NOTIFICATIONS (you DON'T need to run the UI library first!!!)
                 Console.WriteLine("Buttons:");
 
-                executeOnNotification(Sensor.Keys, buttonPressed);
-
-                Console.ReadLine();//This is only so that terminal doesn't close immediately
-
-            }
-
-
-            private static async void executeOnNotification(Sensor sensor, Windows.Foundation.TypedEventHandler<GattCharacteristic, GattValueChangedEventArgs> methodToExecute)
-            {
                 //Get gatt characteristic
-                GattCharacteristic characteristic = GetCharacteristic(sensor).Result;
+                GattCharacteristic characteristic = GetCharacteristic(Sensor.Keys).Result;
 
-                //Enable notifications
-                GattCommunicationStatus status = await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
+                //Enable notifications on the device.
+                enableNotyfications(characteristic);
 
                 //WARNING!!! the "+=" tells event listener to CALL a delagate method.
-                characteristic.ValueChanged +=  methodToExecute;
+                characteristic.ValueChanged += characteristic_ValueChanged;
+
+                executeOnNotification(characteristic, characteristic_ValueChanged);
+
+                Console.ReadLine();//This is only so that terminal doesn't close immediately
             }
 
-            static byte[] getDataBytes(GattValueChangedEventArgs args)
+            private static void executeOnNotification(GattCharacteristic characteristic, Action<GattCharacteristic, GattValueChangedEventArgs> characteristic_ValueChanged)
+            {
+                throw new NotImplementedException();
+            }
+
+            private static async void enableNotyfications(GattCharacteristic characteristic)
+            {
+
+                //This line of code MUST be called from an asynchronous method
+                GattCommunicationStatus status = await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
+            }
+
+            private static async void executeOnNotification(GattCharacteristic characteristic)
+            {
+  GattCommunicationStatus status = await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
+            }
+
+            /// <summary>
+            /// This is an eventHandler delegate that will be called by an event handler.
+            /// </summary>
+            /// <param name="sender">the gatt characteristic that was changed</param>
+            /// <param name="args">contains all kinds of data</param>
+            static void characteristic_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
             {
                 //Create a byte array(with same size as the caracteristics value)
                 var data = new byte[args.CharacteristicValue.Length];
 
                 //Read to byte array from args
                 DataReader.FromBuffer(args.CharacteristicValue).ReadBytes(data);
-                return data;
-            }
-
-            
-            /// <summary>
-            /// This is an eventHandler delegate that will be called by an event handler.
-            /// </summary>
-            /// <param name="sender">the gatt characteristic that was changed</param>
-            /// <param name="args">contains all kinds of data</param>
-            static void buttonPressed(GattCharacteristic sender, GattValueChangedEventArgs args)
-            {
-                //Create a byte array(with same size as the caracteristics value)
-                Byte[] data = getDataBytes(args);
 
                 //Display "HIT" on console and print out data.
                 Console.WriteLine("HIT");

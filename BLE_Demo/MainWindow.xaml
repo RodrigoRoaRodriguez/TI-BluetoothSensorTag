@@ -1,0 +1,86 @@
+﻿<Window x:Class="BLE_Demo.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Demo - Notifications [Off]" Height="666" Width="406" WindowStyle="SingleBorderWindow" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
+    <Window.Resources>
+        <SolidColorBrush x:Key="CustomGray" Color="#5C5C5C" />
+        <SolidColorBrush x:Key="CustomDarkGray" Color="#1F1F1F" />
+        <SolidColorBrush x:Key="CustomOrange" Color="#FFAA00" />
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource CustomDarkGray}" />
+            <Setter Property="Foreground" Value="{StaticResource CustomOrange}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Name="border" BorderThickness="3" CornerRadius="3" BorderBrush="{StaticResource CustomDarkGray}" Background="{TemplateBinding Background}">
+                            <Grid>
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource CustomDarkGray}" />
+                                <Setter Property="Background" Value="{StaticResource CustomOrange}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource CustomOrange}" />
+                                <Setter Property="Foreground" Value="{StaticResource CustomDarkGray}" />
+                                <Setter Property="Background" Value="{StaticResource CustomOrange}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Grid Background="#FFC2C2C2">
+        <Button Content="Read Data" Height="30" HorizontalAlignment="Stretch" MaxWidth="180" Margin="10,20,203,0" Name="buttonReadData" VerticalAlignment="Top" FontWeight="Bold" FontFamily="Cambria" FontSize="13" Click="buttonReadData_Click" />
+        <Button Content="Enable Notifications" Height="30" HorizontalAlignment="Stretch" MaxWidth="180" Margin="195,20,10,0" Name="buttonEnableNotifications" VerticalAlignment="Top" FontWeight="Bold" FontFamily="Cambria" FontSize="13" Click="buttonEnableNotifications_Click" />
+        <DockPanel Height="69" HorizontalAlignment="Left" Margin="0,70,0,0" Name="panelAccelerometer" VerticalAlignment="Top" Width="400">
+            <Rectangle MinWidth="400" Height="24" Margin="0,0,0,0" HorizontalAlignment="Stretch"  VerticalAlignment="Top" Fill="{StaticResource CustomDarkGray}" Width="390" />
+            <Rectangle MinWidth="400" Height="40" Margin="-400,24,0,0" HorizontalAlignment="Stretch"  VerticalAlignment="Top" Fill="{StaticResource CustomGray}" />
+            <Rectangle MinWidth="400" Height="5" Margin="-400,64,0,0" HorizontalAlignment="Stretch"  VerticalAlignment="Top"  Fill="{StaticResource CustomDarkGray}" />
+            <Label Content="Accelerometer" Height="26" Margin="-390,00,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{StaticResource CustomOrange}" FontSize="13" FontWeight="Bold" FontFamily="Cambria" />
+            <Label Content="X: 0.00 m/s   Y: 0.00 m/s   Z: 0.00 m/s" Height="40" Margin="-390,27,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{StaticResource CustomOrange}" FontSize="22" FontWeight="Bold" FontFamily="Cambria" Name="labelAccelerometer" />
+        </DockPanel>
+        <DockPanel Height="69" HorizontalAlignment="Left" Margin="0,150,0,0" Name="panelGyroscope" VerticalAlignment="Top" Width="400">
+            <Rectangle Width="400" Height="24" Margin="0,0,0,0" HorizontalAlignment="Left"  VerticalAlignment="Top" Fill="{StaticResource CustomDarkGray}" />
+            <Rectangle Width="400" Height="40" Margin="-400,24,0,0" HorizontalAlignment="Left"  VerticalAlignment="Top" Fill="{StaticResource CustomGray}" />
+            <Rectangle Width="400" Height="5" Margin="-400,64,0,0" HorizontalAlignment="Left"  VerticalAlignment="Top"  Fill="{StaticResource CustomDarkGray}" />
+            <Label Content="Gyroscope" Height="26" Margin="-390,00,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{StaticResource CustomOrange}" FontSize="13" FontWeight="Bold" FontFamily="Cambria" />
+            <Label Content="0.00 °/s" Height="40" Margin="-390,27,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{StaticResource CustomOrange}" FontSize="22" FontWeight="Bold" FontFamily="Cambria" Name="labelGyroscope" />
+        </DockPanel>
+        <DockPanel Height="69" HorizontalAlignment="Left" Margin="0,230,0,0" Name="panelHumidity" VerticalAlignment="Top" Width="400">
+            <Rectangle Width="400" Height="24" Margin="0,0,0,0" HorizontalAlignment="Left"  VerticalAlignment="Top" Fill="{StaticResource CustomDarkGray}" />
+            <Rectangle Width="400" Height="40" Margin="-400,24,0,0" HorizontalAlignment="Left"  VerticalAlignment="Top" Fill="{StaticResource CustomGray}" />
+            <Rectangle Width="400" Height="5" Margin="-400,64,0,0" HorizontalAlignment="Left"  VerticalAlignment="Top"  Fill="{StaticResource CustomDarkGray}" />
+            <Label Content="Humidity" Height="26" Margin="-390,00,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{StaticResource CustomOrange}" FontSize="13" FontWeight="Bold" FontFamily="Cambria" />
+            <Label Content="0.00 %" Height="40" Margin="-390,27,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{StaticResource CustomOrange}" FontSize="22" FontWeight="Bold" FontFamily="Cambria" Name="labelHumidity" />
+        </DockPanel>
+        <DockPanel Height="69" HorizontalAlignment="Left" Margin="0,310,0,0" Name="panelMagnometer" VerticalAlignment="Top" Width="400">
+            <Rectangle Width="400" Height="24" Margin="0,0,0,0" HorizontalAlignment="Left"  VerticalAlignment="Top" Fill="{StaticResource CustomDarkGray}" />
+            <Rectangle Width="400" Height="40" Margin="-400,24,0,0" HorizontalAlignment="Left"  VerticalAlignment="Top" Fill="{StaticResource CustomGray}" />
+            <Rectangle Width="400" Height="5" Margin="-400,64,0,0" HorizontalAlignment="Left"  VerticalAlignment="Top"  Fill="{StaticResource CustomDarkGray}" />
+            <Label Content="Magnometer" Height="26" Margin="-390,00,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{StaticResource CustomOrange}" FontSize="13" FontWeight="Bold" FontFamily="Cambria" />
+            <Label Content="0.00 µT" Height="40" Margin="-390,27,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{StaticResource CustomOrange}" FontSize="22" FontWeight="Bold" FontFamily="Cambria" Name="labelMagnometer" />
+        </DockPanel>
+        <DockPanel Height="69" HorizontalAlignment="Left" Margin="0,390,0,0" Name="panelPressure" VerticalAlignment="Top" Width="400">
+            <Rectangle Width="400" Height="24" Margin="0,0,0,0" HorizontalAlignment="Left"  VerticalAlignment="Top" Fill="{StaticResource CustomDarkGray}" />
+            <Rectangle Width="400" Height="40" Margin="-400,24,0,0" HorizontalAlignment="Left"  VerticalAlignment="Top" Fill="{StaticResource CustomGray}" />
+            <Rectangle Width="400" Height="5" Margin="-400,64,0,0" HorizontalAlignment="Left"  VerticalAlignment="Top"  Fill="{StaticResource CustomDarkGray}" />
+            <Label Content="Pressure" Height="26" Margin="-390,00,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{StaticResource CustomOrange}" FontSize="13" FontWeight="Bold" FontFamily="Cambria" />
+            <Label Content="0.00 hPa" Height="40" Margin="-390,27,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{StaticResource CustomOrange}" FontSize="22" FontWeight="Bold" FontFamily="Cambria" Name="labelPressure" />
+        </DockPanel>
+        <DockPanel Height="69" HorizontalAlignment="Left" Margin="0,470,0,0" Name="panelTemperature" VerticalAlignment="Top" Width="400">
+            <Rectangle Width="400" Height="24" Margin="0,0,0,0" HorizontalAlignment="Left"  VerticalAlignment="Top" Fill="{StaticResource CustomDarkGray}" />
+            <Rectangle Width="400" Height="40" Margin="-400,24,0,0" HorizontalAlignment="Left"  VerticalAlignment="Top" Fill="{StaticResource CustomGray}" />
+            <Rectangle Width="400" Height="5" Margin="-400,64,0,0" HorizontalAlignment="Left"  VerticalAlignment="Top"  Fill="{StaticResource CustomDarkGray}" />
+            <Label Content="Temperature" Height="26" Margin="-390,00,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{StaticResource CustomOrange}" FontSize="13" FontWeight="Bold" FontFamily="Cambria" />
+            <Label Content="0.00 °" Height="40" Margin="-390,27,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{StaticResource CustomOrange}" FontSize="22" FontWeight="Bold" FontFamily="Cambria" Name="labelTemperature" />
+        </DockPanel>
+        <DockPanel Height="69" HorizontalAlignment="Left" Margin="0,550,0,0" Name="panelButtons" VerticalAlignment="Top" Width="400">
+            <Rectangle Width="400" Height="24" Margin="0,0,0,0" HorizontalAlignment="Left"  VerticalAlignment="Top" Fill="{StaticResource CustomDarkGray}" />
+            <Rectangle Width="400" Height="40" Margin="-400,24,0,0" HorizontalAlignment="Left"  VerticalAlignment="Top" Fill="{StaticResource CustomGray}" />
+            <Rectangle Width="400" Height="5" Margin="-400,64,0,0" HorizontalAlignment="Left"  VerticalAlignment="Top"  Fill="{StaticResource CustomDarkGray}" />
+            <Label Content="Buttons" Height="26" Margin="-390,00,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{StaticResource CustomOrange}" FontSize="13" FontWeight="Bold" FontFamily="Cambria" />
+            <Label Content="Left: Up     Right: Up" Height="40" Margin="-390,27,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{StaticResource CustomOrange}" FontSize="22" FontWeight="Bold" FontFamily="Cambria" Name="labelButtons" />
+        </DockPanel>
+    </Grid>
+</Window>
