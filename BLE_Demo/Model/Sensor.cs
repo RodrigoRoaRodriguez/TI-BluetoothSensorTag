@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TI_BluetootLE_Tag
+namespace BLE_Demo.Model
 {
     public enum Sensor
     {

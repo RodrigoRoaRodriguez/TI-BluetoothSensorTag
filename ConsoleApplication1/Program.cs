@@ -47,7 +47,7 @@ namespace UUID_Test
             private static async void executeOnNotification(Sensor sensor, Windows.Foundation.TypedEventHandler<GattCharacteristic, GattValueChangedEventArgs> methodToExecute)
             {
                 //Get gatt characteristic
-                GattCharacteristic characteristic = GetCharacteristic(sensor).Result;
+                GattCharacteristic characteristic = await GetCharacteristic(sensor);
 
                 //Enable notifications
                 GattCommunicationStatus status = await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);

@@ -11,8 +11,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using BLE_Demo.Controller;
+using BLE_Demo.Model;
+using Windows.Devices.Bluetooth.GenericAttributeProfile;
+using System.Threading.Tasks;
+using Windows.Storage.Streams;
 
-namespace BLE_Demo
+namespace BLE_Demo.View
 {
     public partial class MainWindow : Window
     {
@@ -25,7 +30,8 @@ namespace BLE_Demo
 
         private void buttonReadData_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Call the method that reads data from the device.
+            //TODO: make a prompt that tells user that data cannot be read before shutting down notifications.
+            if (!notificationsEnabled) ;
         }
 
         private void buttonEnableNotifications_Click(object sender, RoutedEventArgs e)
@@ -35,6 +41,7 @@ namespace BLE_Demo
             if (notificationsEnabled)
             {
                 Title = "Demo - Notifications [On]";
+                BLE_Utilities.executeOnNotification(Sensor.Keys, ButtonPressed);
             }
 
             else
@@ -42,7 +49,7 @@ namespace BLE_Demo
                 Title = "Demo - Notifications [Off]";
             }
 
-            // TODO: Call the method that enables notifications from the device.
+
         }
 
         public void setAccelerometer(float x, float y, float z)
@@ -88,6 +95,20 @@ namespace BLE_Demo
                 case 3: labelButtons.Content = "Left: Down     Right: Down"; break;
                 default: labelButtons.Content = "Left: Up     Right: Up"; break;
             }
+        }
+
+
+        // EVENT HANDLERS FOR NOTIFICATIONS
+
+
+        async void ButtonPressed(GattCharacteristic sender, GattValueChangedEventArgs args)
+        {
+            byte[] data = BLE_Utilities.getDataBytes(args);
+
+            //My method is actually " setButton setButtons(data[0]) "
+            //But if you want to change ANYTHING in the UI you have to wrap 
+            //like I did below.
+            await this.Dispatcher.BeginInvoke((Action)(()=> setButtons(data[0])));
         }
     }
 }

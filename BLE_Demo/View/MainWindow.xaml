@@ -1,4 +1,4 @@
-﻿<Window x:Class="BLE_Demo.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Demo - Notifications [Off]" Height="666" Width="406" WindowStyle="SingleBorderWindow" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
+﻿<Window x:Class="BLE_Demo.View.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Demo - Notifications [Off]" Height="666" Width="406" WindowStyle="SingleBorderWindow" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
     <Window.Resources>
         <SolidColorBrush x:Key="CustomGray" Color="#5C5C5C" />
         <SolidColorBrush x:Key="CustomDarkGray" Color="#1F1F1F" />
