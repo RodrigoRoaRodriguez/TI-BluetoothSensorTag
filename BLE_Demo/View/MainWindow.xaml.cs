@@ -11,7 +11,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using BLE_Demo.Controller;
 using BLE_Demo.Model;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using System.Threading.Tasks;
@@ -31,7 +30,9 @@ namespace BLE_Demo.View
         private void buttonReadData_Click(object sender, RoutedEventArgs e)
         {
             //TODO: make a prompt that tells user that data cannot be read before shutting down notifications.
-            if (!notificationsEnabled) ;
+            ReadTemperature();
+            ReadAccelerometer();
+            ReadGyroscope();
         }
 
         private void buttonEnableNotifications_Click(object sender, RoutedEventArgs e)
@@ -42,6 +43,10 @@ namespace BLE_Demo.View
             {
                 Title = "Demo - Notifications [On]";
                 BLE_Utilities.executeOnNotification(Sensor.Keys, ButtonPressed);
+                // BLE_Utilities.executeOnNotification(Sensor.Accelerometer, NotifyAccelerometer);
+                // BLE_Utilities.executeOnNotification(Sensor.Gyroscope, NotifyGyroscope);
+                // BLE_Utilities.executeOnNotification(Sensor.Temperature, NotifyTemperature);
+
             }
 
             else
@@ -61,9 +66,13 @@ namespace BLE_Demo.View
             labelAccelerometer.Content = xstr + "   " + ystr + "   " + zstr;
         }
 
-        public void setGyroscope(float v)
+        public void setGyroscope(float x, float y, float z)
         {
-            labelGyroscope.Content = v.ToString("0.0000") + " °/s";
+            string xstr = "X: " + x.ToString("0.00") + " ˚/s";
+            string ystr = "Y: " + y.ToString("0.00") + " ˚/s";
+            string zstr = "Z: " + z.ToString("0.00") + " ˚/s";
+
+            labelGyroscope.Content = xstr + "   " + ystr + "   " + zstr;
         }
 
         public void setHumidity(float v)
@@ -83,7 +92,7 @@ namespace BLE_Demo.View
 
         public void setTemperature(float v)
         {
-            labelTemperature.Content = v.ToString("0.0000") + " °";
+            labelTemperature.Content = v.ToString() + " °";
         }
 
         public void setButtons(byte s)
@@ -97,10 +106,55 @@ namespace BLE_Demo.View
             }
         }
 
+        // Methods for reading data
+        // "Read's" methods involves in read-mode
+        // "Notify's" methods involves in notification-mode
+
+        async void ReadAccelerometer()
+        {
+            byte[] rawData = await BLE_Utilities.ReadData(Sensor.Accelerometer);
+            await this.Dispatcher.BeginInvoke((Action)(() => setAccelerometer((float)rawData[0], (float)rawData[1], (float)rawData[2])));
+        }
+
+        async void NotifyAccelerometer(GattCharacteristic sender, GattValueChangedEventArgs args)
+        {
+            byte[] rawData = await BLE_Utilities.ReadData(Sensor.Accelerometer);
+            await this.Dispatcher.BeginInvoke((Action)(() => setAccelerometer((float)rawData[0], (float)rawData[1], (float)rawData[2])));
+        }
+
+
+        async void ReadGyroscope()
+        {
+            byte[] rawData = await BLE_Utilities.ReadData(Sensor.Gyroscope);
+            float x = BitConverter.ToInt16(rawData, 0) * (500f / 65536f);
+            float y = BitConverter.ToInt16(rawData, 2) * (500f / 65536f);
+            float z = BitConverter.ToInt16(rawData, 4) * (500f / 65536f);
+            await this.Dispatcher.BeginInvoke((Action)(() => setGyroscope(x, y, z)));
+        }
+
+        async void NotifyGyroscope(GattCharacteristic sender, GattValueChangedEventArgs args)
+        {
+            byte[] rawData = await BLE_Utilities.ReadData(Sensor.Gyroscope);
+            float x = BitConverter.ToInt16(rawData, 0) * (500f / 65536f);
+            float y = BitConverter.ToInt16(rawData, 2) * (500f / 65536f);
+            float z = BitConverter.ToInt16(rawData, 4) * (500f / 65536f);
+            await this.Dispatcher.BeginInvoke((Action)(() => setGyroscope(x, y, z)));
+        }
+
+
+        async void ReadTemperature()
+        {
+            byte[] rawData = await BLE_Utilities.ReadData(Sensor.Temperature);
+            await this.Dispatcher.BeginInvoke((Action)(() => setTemperature((float)(BitConverter.ToUInt16(rawData, 2) / 128.0))));
+        }
+
+        async void NotifyTemperature(GattCharacteristic sender, GattValueChangedEventArgs args)
+        {
+            byte[] rawData = await BLE_Utilities.ReadData(Sensor.Temperature);
+            await this.Dispatcher.BeginInvoke((Action)(() => setTemperature((float)(BitConverter.ToUInt16(rawData, 2) / 128.0))));
+        }
 
         // EVENT HANDLERS FOR NOTIFICATIONS
-
-
         async void ButtonPressed(GattCharacteristic sender, GattValueChangedEventArgs args)
         {
             byte[] data = BLE_Utilities.getDataBytes(args);
@@ -108,7 +162,7 @@ namespace BLE_Demo.View
             //My method is actually " setButton setButtons(data[0]) "
             //But if you want to change ANYTHING in the UI you have to wrap 
             //like I did below.
-            await this.Dispatcher.BeginInvoke((Action)(()=> setButtons(data[0])));
+            await this.Dispatcher.BeginInvoke((Action)(() => setButtons(data[0])));
         }
     }
 }

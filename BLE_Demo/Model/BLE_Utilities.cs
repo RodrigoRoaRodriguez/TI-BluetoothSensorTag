@@ -60,9 +60,10 @@ namespace BLE_Demo.Model
 
             //Enable notifications
             GattCommunicationStatus status = await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
-
+            characteristic.ValueChanged -= methodToExecute;
             //WARNING!!! the "+=" tells event listener to CALL a delagate method.
             characteristic.ValueChanged += methodToExecute;
+
         }
 
 
@@ -85,10 +86,10 @@ namespace BLE_Demo.Model
         /// </summary>
         /// <param name="sensor"></param>
         /// <returns></returns>
-        static async Task<byte[]> ReadData(Sensor sensor)
+        public static async Task<byte[]> ReadData(Sensor sensor)
         {
             //Get characteristic
-            GattCharacteristic gattCharacteristic = GetCharacteristic(sensor).Result;
+            GattCharacteristic gattCharacteristic = await GetCharacteristic(sensor);
 
             //Fetch result
             GattReadResult read = await gattCharacteristic.ReadValueAsync(Windows.Devices.Bluetooth.BluetoothCacheMode.Uncached);

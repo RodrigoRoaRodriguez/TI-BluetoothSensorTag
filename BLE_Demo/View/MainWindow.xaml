@@ -45,7 +45,7 @@
             <Rectangle Width="400" Height="40" Margin="-400,24,0,0" HorizontalAlignment="Left"  VerticalAlignment="Top" Fill="{StaticResource CustomGray}" />
             <Rectangle Width="400" Height="5" Margin="-400,64,0,0" HorizontalAlignment="Left"  VerticalAlignment="Top"  Fill="{StaticResource CustomDarkGray}" />
             <Label Content="Gyroscope" Height="26" Margin="-390,00,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{StaticResource CustomOrange}" FontSize="13" FontWeight="Bold" FontFamily="Cambria" />
-            <Label Content="0.00 °/s" Height="40" Margin="-390,27,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{StaticResource CustomOrange}" FontSize="22" FontWeight="Bold" FontFamily="Cambria" Name="labelGyroscope" />
+            <Label Content="X: 0.00 ˚/s   Y: 0.00 ˚/s   Z: 0.00 ˚/s" Height="40" Margin="-390,27,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{StaticResource CustomOrange}" FontSize="22" FontWeight="Bold" FontFamily="Cambria" Name="labelGyroscope" />
         </DockPanel>
         <DockPanel Height="69" HorizontalAlignment="Left" Margin="0,230,0,0" Name="panelHumidity" VerticalAlignment="Top" Width="400">
             <Rectangle Width="400" Height="24" Margin="0,0,0,0" HorizontalAlignment="Left"  VerticalAlignment="Top" Fill="{StaticResource CustomDarkGray}" />
