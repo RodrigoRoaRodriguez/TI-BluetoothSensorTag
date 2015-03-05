@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace BLE_Demo.Model
 {
+    /**
+     * Contains methods for converting raw sensordata from the tag into human readable format.
+     * All methods are of format float foo(byte[]) or float[] foo(byte[]).
+     */
     public static class SensorConvert
     {
         public static float[] convertAccelerometer(byte[] rawData)
