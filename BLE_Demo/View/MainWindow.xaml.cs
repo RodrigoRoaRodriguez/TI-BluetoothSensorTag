@@ -139,19 +139,6 @@ namespace BLE_Demo.View
             await this.Dispatcher.BeginInvoke((Action)(() => setGyroscope(x, y, z)));
         }
 
-
-        async void ReadTemperature()
-        {
-            byte[] rawData = await BLE_Utilities.ReadData(Sensor.Temperature);
-            await this.Dispatcher.BeginInvoke((Action)(() => setTemperature((float)(BitConverter.ToUInt16(rawData, 2) / 128.0))));
-        }
-
-        async void NotifyTemperature(GattCharacteristic sender, GattValueChangedEventArgs args)
-        {
-            byte[] rawData = BLE_Utilities.getDataBytes(args);
-            await this.Dispatcher.BeginInvoke((Action)(() => setTemperature((float)(BitConverter.ToUInt16(rawData, 2) / 128.0))));
-        }
-
         //Read values method
         async void ReadHumidity()
         {
@@ -172,6 +159,21 @@ namespace BLE_Demo.View
             float acthum = -6.0f + 125.0f / 65536f * (float)hum; // RH= -6 + 125 * SRH/2^16
             await this.Dispatcher.BeginInvoke((Action)(() => setHumidity(acthum)));
         }
+
+        
+
+        async void ReadTemperature()
+        {
+            byte[] rawData = await BLE_Utilities.ReadData(Sensor.Temperature);
+            await this.Dispatcher.BeginInvoke((Action)(() => setTemperature((float)(BitConverter.ToUInt16(rawData, 2) / 128.0))));
+        }
+
+        async void NotifyTemperature(GattCharacteristic sender, GattValueChangedEventArgs args)
+        {
+            byte[] rawData = BLE_Utilities.getDataBytes(args);
+            await this.Dispatcher.BeginInvoke((Action)(() => setTemperature((float)(BitConverter.ToUInt16(rawData, 2) / 128.0))));
+        }
+
 
         // EVENT HANDLERS FOR NOTIFICATIONS
         async void ButtonPressed(GattCharacteristic sender, GattValueChangedEventArgs args)
