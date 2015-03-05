@@ -55,7 +55,7 @@ namespace BLE_Demo.Model
         /// </summary>
         /// <param name="sensor"> the targeted sensor</param>
         /// <param name="methodToExecute"> the method to be called on value change</param>
-        public static async void executeOnNotification(Sensor sensor, Windows.Foundation.TypedEventHandler<GattCharacteristic, GattValueChangedEventArgs> methodToExecute)
+        public static async Task executeOnNotification(Sensor sensor, Windows.Foundation.TypedEventHandler<GattCharacteristic, GattValueChangedEventArgs> methodToExecute)
         {
             //Get gatt characteristic
             GattCharacteristic characteristic = await GetCharacteristic(sensor, Attribute.Data);
@@ -67,6 +67,16 @@ namespace BLE_Demo.Model
             characteristic.ValueChanged += methodToExecute;
 
         }
+
+        public static async Task dispose(Sensor sensor)
+        {
+            //Get gatt characteristic
+            GattCharacteristic characteristic = await GetCharacteristic(sensor, Attribute.Data);
+
+            //Enable notifications
+            GattCommunicationStatus status = await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None);
+        }
+
 
 
 
@@ -122,6 +132,18 @@ namespace BLE_Demo.Model
                 //x=1, y=2, xy=3, z=4, xz = 5, yz = 6, xyz = 7
                 //We will enable XYZ.
                 await gattCharacteristic.WriteValueAsync((new byte[] { 7 }).AsBuffer());
+            }
+        }
+
+        public static async Task DisableSensor(Sensor sensor)
+        {
+            //Get  characteristic
+            GattCharacteristic gattCharacteristic = await GetCharacteristic(sensor, Attribute.Configuration);
+
+            if (sensor != Sensor.Gyroscope)
+            {
+                //Write 1 to configuration byte 
+                await gattCharacteristic.WriteValueAsync((new byte[] { 0 }).AsBuffer());
             }
         }
 
