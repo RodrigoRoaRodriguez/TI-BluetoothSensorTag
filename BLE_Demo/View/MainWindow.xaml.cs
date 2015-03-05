@@ -26,12 +26,29 @@ namespace BLE_Demo.View
         public MainWindow()
         {
             InitializeComponent();
-            EnableSensors();
+            initializeSensors();
+        }
+
+        /// <summary>
+        /// This method exists for the sole purpose of preventing a data race between the intialization of the main
+        /// window and that of the sensors. Before it was possible for the method to end before all components were
+        /// initialized which would often result in some sensors appearing to malfunction consistently.
+        /// </summary>
+        private async void initializeSensors()
+        {
+            //Wait for all sensors to be initialized before execution of the method is stopped.
+            await EnableSensors();
+
             timer = new Timer(5000);
             timer.Elapsed += refreshNotifications;
             timer.Start();
         }
 
+        /// <summary>
+        /// An event handler that keeps the onChange eventListener of the different sensors alive.
+        /// </summary>
+        /// <param name="sender"> a timer object</param>
+        /// <param name="e"> </param>
         private async void refreshNotifications(object sender, ElapsedEventArgs e)
         {
             if (notificationsEnabled)
@@ -48,15 +65,12 @@ namespace BLE_Demo.View
 
         private async void buttonReadData_Click(object sender, RoutedEventArgs e)
         {
-            await EnableSensors();
-
-            //TODO: make a prompt that tells user that data cannot be read before shutting down notifications.
             await ReadTemperature();
             await ReadAccelerometer();
             await ReadGyroscope();
             await ReadHumidity();
             await ReadMagnetometer();
-
+            await ReadPressure();
         }
 
         private async Task EnableSensors()
@@ -79,6 +93,8 @@ namespace BLE_Demo.View
             await BLE_Utilities.DisableSensor(Sensor.Humidity);
         }
 
+
+        //#EVENT LISTENERS FOR GUI COMPONENTS
         private async void buttonEnableNotifications_Click(object sender, RoutedEventArgs e)
         {
             notificationsEnabled = !notificationsEnabled;
@@ -92,6 +108,7 @@ namespace BLE_Demo.View
                 await BLE_Utilities.executeOnNotification(Sensor.Humidity, NotifyHumidity);
                 await BLE_Utilities.executeOnNotification(Sensor.Gyroscope, NotifyGyroscope);
                 await BLE_Utilities.executeOnNotification(Sensor.Magnetometer, NotifyMagnetometer);
+                await BLE_Utilities.executeOnNotification(Sensor.Pressure, NotifyPressure);
                 await BLE_Utilities.executeOnNotification(Sensor.Temperature, NotifyTemperature);
                 
             }
@@ -105,6 +122,7 @@ namespace BLE_Demo.View
                 await BLE_Utilities.dispose(Sensor.Humidity);
                 await BLE_Utilities.dispose(Sensor.Gyroscope);
                 await BLE_Utilities.dispose(Sensor.Magnetometer);
+                await BLE_Utilities.dispose(Sensor.Pressure);
                 await BLE_Utilities.dispose(Sensor.Temperature);
             }
         }
@@ -161,10 +179,11 @@ namespace BLE_Demo.View
             }
         }
 
-        // Methods for reading data
-        // "Read's" methods involves in read-mode
-        // "Notify's" methods involves in notification-mode
+        // # Methods for reading data
+        // 1. "Read" retrieve data by reading from the device.
+        // 2. "Notify" employs event listeners that are activated on changed value
 
+        //## Accelerometer
         async Task ReadAccelerometer()
         {
             byte[] rawData = await BLE_Utilities.ReadData(Sensor.Accelerometer);
@@ -179,7 +198,7 @@ namespace BLE_Demo.View
             await this.Dispatcher.BeginInvoke((Action)(() => setAccelerometer(vals[0], vals[1], vals[2])));
         }
 
-
+        //## Gyroscope
         async Task ReadGyroscope()
         {
             byte[] rawData = await BLE_Utilities.ReadData(Sensor.Gyroscope);
@@ -194,14 +213,14 @@ namespace BLE_Demo.View
             await this.Dispatcher.BeginInvoke((Action)(() => setGyroscope(vals[0], vals[1], vals[2])));
         }
 
-        //Read values method
+        //## Humidity
         async Task ReadHumidity()
         {
             byte[] rawData = await BLE_Utilities.ReadData(Sensor.Humidity);
             float acthum = SensorConvert.convertHumidity(rawData);
             await this.Dispatcher.BeginInvoke((Action)(() => setHumidity(acthum)));
         }
-        //Notification event handler
+
         async void NotifyHumidity(GattCharacteristic sender, GattValueChangedEventArgs args)
         {
             byte[] rawData = BLE_Utilities.getDataBytes(args);
@@ -209,6 +228,7 @@ namespace BLE_Demo.View
             await this.Dispatcher.BeginInvoke((Action)(() => setHumidity(acthum)));
         }
 
+        //## Magnetometer
         async Task ReadMagnetometer()
         {
             byte[] rawData = await BLE_Utilities.ReadData(Sensor.Accelerometer);
@@ -224,6 +244,22 @@ namespace BLE_Demo.View
             await this.Dispatcher.BeginInvoke((Action)(() => setMagnetometer(vals[0], vals[1], vals[2])));
         }
 
+        //##Pressure
+        async Task ReadPressure()
+        {
+            byte[] rawData = await BLE_Utilities.ReadData(Sensor.Pressure);
+            float temp = SensorConvert.convertPressure(rawData);
+            await this.Dispatcher.BeginInvoke((Action)(() => setPressure(temp)));
+        }
+
+        async void NotifyPressure(GattCharacteristic sender, GattValueChangedEventArgs args)
+        {
+            byte[] rawData = BLE_Utilities.getDataBytes(args);
+            float temp = SensorConvert.convertPressure(rawData);
+            await this.Dispatcher.BeginInvoke((Action)(() => setPressure(temp)));
+        }
+
+        //##Temperature
         async Task ReadTemperature()
         {
             byte[] rawData = await BLE_Utilities.ReadData(Sensor.Temperature);
@@ -238,6 +274,7 @@ namespace BLE_Demo.View
             await this.Dispatcher.BeginInvoke((Action)(() => setTemperature(temp)));
         }
 
+        //Buttons
         async void notifyButton(GattCharacteristic sender, GattValueChangedEventArgs args)
         {
             byte[] data = BLE_Utilities.getDataBytes(args);

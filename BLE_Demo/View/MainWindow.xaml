@@ -80,7 +80,7 @@
             <Rectangle Width="400" Height="40" Margin="-400,24,0,0" HorizontalAlignment="Left"  VerticalAlignment="Top" Fill="{StaticResource CustomGray}" />
             <Rectangle Width="400" Height="5" Margin="-400,64,0,0" HorizontalAlignment="Left"  VerticalAlignment="Top"  Fill="{StaticResource CustomDarkGray}" />
             <Label Content="Buttons" Height="26" Margin="-390,00,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{StaticResource CustomOrange}" FontSize="13" FontWeight="Bold" FontFamily="Cambria" />
-            <Label Content="Left: Up     Right: Up" Height="40" Margin="-390,27,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{StaticResource CustomOrange}" FontSize="22" FontWeight="Bold" FontFamily="Cambria" Name="labelButtons" />
+            <Label Content="Left: Up     Right: Up" Height="40" Margin="-390,27,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="{StaticResource CustomOrange}" FontSize="22" FontWeight="Bold" FontFamily="Cambria" Name="labelButtons" />
         </DockPanel>
     </Grid>
 </Window>
