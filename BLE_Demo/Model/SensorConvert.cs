@@ -16,6 +16,14 @@ namespace BLE_Demo.Model
             return new float[] {x, y, z};
         }
 
+        public static float[] convertGyroscope(byte[] rawData)
+        {
+            float x = BitConverter.ToInt16(rawData, 0) * (500f / 65536f);
+            float y = BitConverter.ToInt16(rawData, 2) * (500f / 65536f);
+            float z = BitConverter.ToInt16(rawData, 4) * (500f / 65536f);
+
+            return new float[] { x, y, z };
+        }
         public static float convertHumidity(byte[] rawData)
         {
             int hum = BitConverter.ToUInt16(rawData, 2);
@@ -25,24 +33,34 @@ namespace BLE_Demo.Model
             return acthum;
         }
 
+        public static float[] convertMagnometer(byte[] rawData)
+        {
+            float x = BitConverter.ToInt16(rawData, 0);
+            float y = BitConverter.ToInt16(rawData, 2);
+            float z = BitConverter.ToInt16(rawData, 4);
+
+            x = (x * 1.0f) / (65536f / 2000f);
+            y = (y * 1.0f) / (65536f / 2000f);
+            z = (z * 1.0f) / (65536f / 2000f);
+
+            return new float[] { x, y, z };
+        }
+
+        /*
+         * Jobbig algoritm.
+         * Inte relevant, vi skippar den.
+         */
+        public static float convertPressure(byte[] rawData)
+        {
+            return 101.1f;
+        }
+
         public static float convertTemperature(byte[] rawData)
         {
             return (float)(BitConverter.ToUInt16(rawData, 2) / 128.0);
         }
 
-        public static float convertPressure(byte[] rawData)
-        {
-            return 0f;
-        }
 
-        public static float[] convertGyroscope(byte[] rawData)
-        {
-            float x = BitConverter.ToInt16(rawData, 0) * (500f / 65536f);
-            float y = BitConverter.ToInt16(rawData, 2) * (500f / 65536f);
-            float z = BitConverter.ToInt16(rawData, 4) * (500f / 65536f);
-
-            return new float[] { x, y, z };
-        }
     }
 }
 

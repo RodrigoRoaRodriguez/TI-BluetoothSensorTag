@@ -33,6 +33,8 @@ namespace BLE_Demo.View
             ReadTemperature();
             ReadAccelerometer();
             ReadGyroscope();
+            ReadHumidity();
+            ReadMagnetometer();
         }
 
         private void buttonEnableNotifications_Click(object sender, RoutedEventArgs e)
@@ -45,6 +47,7 @@ namespace BLE_Demo.View
                 BLE_Utilities.executeOnNotification(Sensor.Accelerometer, NotifyAccelerometer);
                 BLE_Utilities.executeOnNotification(Sensor.Humidity, NotifyHumidity);
                 BLE_Utilities.executeOnNotification(Sensor.Gyroscope, NotifyGyroscope);
+                BLE_Utilities.executeOnNotification(Sensor.Magnetometer, NotifyMagnetometer);
                 BLE_Utilities.executeOnNotification(Sensor.Temperature, NotifyTemperature);
             }
 
@@ -77,9 +80,12 @@ namespace BLE_Demo.View
             labelHumidity.Content = v.ToString("0.0000") + " %";
         }
 
-        public void setMagnometer(float v)
+        public void setMagnetometer(float x, float y, float z)
         {
-            labelMagnometer.Content = v.ToString("0.0000") + " µT";
+            string xstr = "X: " + x.ToString("0.00") + " µT";
+            string ystr = "Y: " + y.ToString("0.00") + " µT";
+            string zstr = "Z: " + z.ToString("0.00") + " µT";
+            labelMagnometer.Content = xstr + "   " + ystr + "   " + zstr;
         }
 
         public void setPressure(float v)
@@ -152,7 +158,20 @@ namespace BLE_Demo.View
             await this.Dispatcher.BeginInvoke((Action)(() => setHumidity(acthum)));
         }
 
-        
+        async void ReadMagnetometer()
+        {
+            byte[] rawData = await BLE_Utilities.ReadData(Sensor.Accelerometer);
+            float[] vals = SensorConvert.convertAccelerometer(rawData);
+            await this.Dispatcher.BeginInvoke((Action)(() => setMagnetometer(vals[0], vals[1], vals[2])));
+        }
+
+        async void NotifyMagnetometer(GattCharacteristic sender, GattValueChangedEventArgs args)
+        {
+
+            byte[] rawData = BLE_Utilities.getDataBytes(args);
+            float[] vals = SensorConvert.convertAccelerometer(rawData);
+            await this.Dispatcher.BeginInvoke((Action)(() => setMagnetometer(vals[0], vals[1], vals[2])));
+        }
 
         async void ReadTemperature()
         {
