@@ -38,23 +38,20 @@ namespace BLE_Demo.View
         private void buttonEnableNotifications_Click(object sender, RoutedEventArgs e)
         {
             notificationsEnabled = !notificationsEnabled;
-
             if (notificationsEnabled)
             {
                 Title = "Demo - Notifications [On]";
                 BLE_Utilities.executeOnNotification(Sensor.Keys, ButtonPressed);
-                // BLE_Utilities.executeOnNotification(Sensor.Accelerometer, NotifyAccelerometer);
-                // BLE_Utilities.executeOnNotification(Sensor.Gyroscope, NotifyGyroscope);
-                // BLE_Utilities.executeOnNotification(Sensor.Temperature, NotifyTemperature);
-
+                BLE_Utilities.executeOnNotification(Sensor.Accelerometer, NotifyAccelerometer);
+                BLE_Utilities.executeOnNotification(Sensor.Humidity, NotifyHumidity);
+                BLE_Utilities.executeOnNotification(Sensor.Gyroscope, NotifyGyroscope);
+                BLE_Utilities.executeOnNotification(Sensor.Temperature, NotifyTemperature);
             }
 
             else
             {
                 Title = "Demo - Notifications [Off]";
             }
-
-
         }
 
         public void setAccelerometer(float x, float y, float z)
@@ -118,7 +115,8 @@ namespace BLE_Demo.View
 
         async void NotifyAccelerometer(GattCharacteristic sender, GattValueChangedEventArgs args)
         {
-            byte[] rawData = await BLE_Utilities.ReadData(Sensor.Accelerometer);
+
+            byte[] rawData = BLE_Utilities.getDataBytes(args);
             await this.Dispatcher.BeginInvoke((Action)(() => setAccelerometer((float)rawData[0], (float)rawData[1], (float)rawData[2])));
         }
 
@@ -134,7 +132,7 @@ namespace BLE_Demo.View
 
         async void NotifyGyroscope(GattCharacteristic sender, GattValueChangedEventArgs args)
         {
-            byte[] rawData = await BLE_Utilities.ReadData(Sensor.Gyroscope);
+            byte[] rawData = BLE_Utilities.getDataBytes(args);
             float x = BitConverter.ToInt16(rawData, 0) * (500f / 65536f);
             float y = BitConverter.ToInt16(rawData, 2) * (500f / 65536f);
             float z = BitConverter.ToInt16(rawData, 4) * (500f / 65536f);
@@ -150,8 +148,29 @@ namespace BLE_Demo.View
 
         async void NotifyTemperature(GattCharacteristic sender, GattValueChangedEventArgs args)
         {
-            byte[] rawData = await BLE_Utilities.ReadData(Sensor.Temperature);
+            byte[] rawData = BLE_Utilities.getDataBytes(args);
             await this.Dispatcher.BeginInvoke((Action)(() => setTemperature((float)(BitConverter.ToUInt16(rawData, 2) / 128.0))));
+        }
+
+        //Read values method
+        async void ReadHumidity()
+        {
+            byte[] rawData = await BLE_Utilities.ReadData(Sensor.Humidity);
+            int hum = BitConverter.ToUInt16(rawData, 2);
+            hum &= ~0x0003; // clear bits [1..0] (status bits)
+            //-- calculate relative humidity [%RH] --
+            float acthum = -6.0f + 125.0f / 65536f * (float)hum; // RH= -6 + 125 * SRH/2^16
+            await this.Dispatcher.BeginInvoke((Action)(() => setHumidity(acthum)));
+        }
+        //Notification event handler
+        async void NotifyHumidity(GattCharacteristic sender, GattValueChangedEventArgs args)
+        {
+            byte[] data = BLE_Utilities.getDataBytes(args);
+            int hum = BitConverter.ToUInt16(data, 2);
+            hum &= ~0x0003; // clear bits [1..0] (status bits)
+            //-- calculate relative humidity [%RH] --
+            float acthum = -6.0f + 125.0f / 65536f * (float)hum; // RH= -6 + 125 * SRH/2^16
+            await this.Dispatcher.BeginInvoke((Action)(() => setHumidity(acthum)));
         }
 
         // EVENT HANDLERS FOR NOTIFICATIONS
