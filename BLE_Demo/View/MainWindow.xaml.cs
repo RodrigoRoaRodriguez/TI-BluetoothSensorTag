@@ -33,28 +33,28 @@ namespace BLE_Demo.View
             ReadTemperature();
             ReadAccelerometer();
             ReadGyroscope();
+            ReadHumidity();
+            ReadMagnetometer();
         }
 
         private void buttonEnableNotifications_Click(object sender, RoutedEventArgs e)
         {
             notificationsEnabled = !notificationsEnabled;
-
             if (notificationsEnabled)
             {
                 Title = "Demo - Notifications [On]";
                 BLE_Utilities.executeOnNotification(Sensor.Keys, ButtonPressed);
-                // BLE_Utilities.executeOnNotification(Sensor.Accelerometer, NotifyAccelerometer);
-                // BLE_Utilities.executeOnNotification(Sensor.Gyroscope, NotifyGyroscope);
-                // BLE_Utilities.executeOnNotification(Sensor.Temperature, NotifyTemperature);
-
+                BLE_Utilities.executeOnNotification(Sensor.Accelerometer, NotifyAccelerometer);
+                BLE_Utilities.executeOnNotification(Sensor.Humidity, NotifyHumidity);
+                BLE_Utilities.executeOnNotification(Sensor.Gyroscope, NotifyGyroscope);
+                BLE_Utilities.executeOnNotification(Sensor.Magnetometer, NotifyMagnetometer);
+                BLE_Utilities.executeOnNotification(Sensor.Temperature, NotifyTemperature);
             }
 
             else
             {
                 Title = "Demo - Notifications [Off]";
             }
-
-
         }
 
         public void setAccelerometer(float x, float y, float z)
@@ -80,9 +80,12 @@ namespace BLE_Demo.View
             labelHumidity.Content = v.ToString("0.0000") + " %";
         }
 
-        public void setMagnometer(float v)
+        public void setMagnetometer(float x, float y, float z)
         {
-            labelMagnometer.Content = v.ToString("0.0000") + " µT";
+            string xstr = "X: " + x.ToString("0.00") + " µT";
+            string ystr = "Y: " + y.ToString("0.00") + " µT";
+            string zstr = "Z: " + z.ToString("0.00") + " µT";
+            labelMagnometer.Content = xstr + "   " + ystr + "   " + zstr;
         }
 
         public void setPressure(float v)
@@ -113,46 +116,77 @@ namespace BLE_Demo.View
         async void ReadAccelerometer()
         {
             byte[] rawData = await BLE_Utilities.ReadData(Sensor.Accelerometer);
-            await this.Dispatcher.BeginInvoke((Action)(() => setAccelerometer((float)rawData[0], (float)rawData[1], (float)rawData[2])));
+            float[] vals = SensorConvert.convertAccelerometer(rawData);
+            await this.Dispatcher.BeginInvoke((Action)(() => setAccelerometer(vals[0], vals[1], vals[2])));
         }
 
         async void NotifyAccelerometer(GattCharacteristic sender, GattValueChangedEventArgs args)
         {
-            byte[] rawData = await BLE_Utilities.ReadData(Sensor.Accelerometer);
-            await this.Dispatcher.BeginInvoke((Action)(() => setAccelerometer((float)rawData[0], (float)rawData[1], (float)rawData[2])));
+
+            byte[] rawData = BLE_Utilities.getDataBytes(args);
+            float[] vals = SensorConvert.convertAccelerometer(rawData);
+            await this.Dispatcher.BeginInvoke((Action)(() => setAccelerometer(vals[0], vals[1], vals[2])));
         }
 
 
         async void ReadGyroscope()
         {
             byte[] rawData = await BLE_Utilities.ReadData(Sensor.Gyroscope);
-            float x = BitConverter.ToInt16(rawData, 0) * (500f / 65536f);
-            float y = BitConverter.ToInt16(rawData, 2) * (500f / 65536f);
-            float z = BitConverter.ToInt16(rawData, 4) * (500f / 65536f);
-            await this.Dispatcher.BeginInvoke((Action)(() => setGyroscope(x, y, z)));
+            float[] vals = SensorConvert.convertGyroscope(rawData);
+            await this.Dispatcher.BeginInvoke((Action)(() => setGyroscope(vals[0], vals[1], vals[2])));
         }
 
         async void NotifyGyroscope(GattCharacteristic sender, GattValueChangedEventArgs args)
         {
-            byte[] rawData = await BLE_Utilities.ReadData(Sensor.Gyroscope);
-            float x = BitConverter.ToInt16(rawData, 0) * (500f / 65536f);
-            float y = BitConverter.ToInt16(rawData, 2) * (500f / 65536f);
-            float z = BitConverter.ToInt16(rawData, 4) * (500f / 65536f);
-            await this.Dispatcher.BeginInvoke((Action)(() => setGyroscope(x, y, z)));
+            byte[] rawData = BLE_Utilities.getDataBytes(args);
+            float[] vals = SensorConvert.convertGyroscope(rawData);
+            await this.Dispatcher.BeginInvoke((Action)(() => setGyroscope(vals[0], vals[1], vals[2])));
         }
 
+        //Read values method
+        async void ReadHumidity()
+        {
+            byte[] rawData = await BLE_Utilities.ReadData(Sensor.Humidity);
+            float acthum = SensorConvert.convertHumidity(rawData);
+            await this.Dispatcher.BeginInvoke((Action)(() => setHumidity(acthum)));
+        }
+        //Notification event handler
+        async void NotifyHumidity(GattCharacteristic sender, GattValueChangedEventArgs args)
+        {
+            byte[] rawData = BLE_Utilities.getDataBytes(args);
+            float acthum = SensorConvert.convertHumidity(rawData);
+            await this.Dispatcher.BeginInvoke((Action)(() => setHumidity(acthum)));
+        }
+
+        async void ReadMagnetometer()
+        {
+            byte[] rawData = await BLE_Utilities.ReadData(Sensor.Accelerometer);
+            float[] vals = SensorConvert.convertAccelerometer(rawData);
+            await this.Dispatcher.BeginInvoke((Action)(() => setMagnetometer(vals[0], vals[1], vals[2])));
+        }
+
+        async void NotifyMagnetometer(GattCharacteristic sender, GattValueChangedEventArgs args)
+        {
+
+            byte[] rawData = BLE_Utilities.getDataBytes(args);
+            float[] vals = SensorConvert.convertAccelerometer(rawData);
+            await this.Dispatcher.BeginInvoke((Action)(() => setMagnetometer(vals[0], vals[1], vals[2])));
+        }
 
         async void ReadTemperature()
         {
             byte[] rawData = await BLE_Utilities.ReadData(Sensor.Temperature);
-            await this.Dispatcher.BeginInvoke((Action)(() => setTemperature((float)(BitConverter.ToUInt16(rawData, 2) / 128.0))));
+            float temp = SensorConvert.convertTemperature(rawData);
+            await this.Dispatcher.BeginInvoke((Action)(() => setTemperature(temp)));
         }
 
         async void NotifyTemperature(GattCharacteristic sender, GattValueChangedEventArgs args)
         {
-            byte[] rawData = await BLE_Utilities.ReadData(Sensor.Temperature);
-            await this.Dispatcher.BeginInvoke((Action)(() => setTemperature((float)(BitConverter.ToUInt16(rawData, 2) / 128.0))));
+            byte[] rawData = BLE_Utilities.getDataBytes(args); 
+            float temp = SensorConvert.convertTemperature(rawData);
+            await this.Dispatcher.BeginInvoke((Action)(() => setTemperature(temp)));
         }
+
 
         // EVENT HANDLERS FOR NOTIFICATIONS
         async void ButtonPressed(GattCharacteristic sender, GattValueChangedEventArgs args)
