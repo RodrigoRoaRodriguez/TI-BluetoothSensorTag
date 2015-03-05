@@ -20,6 +20,14 @@ namespace BLE_Demo.Model
         // UUID for Over-The-Air-Dowload firmware service was intentionally ommited so that no one accidentally bricks a tag.
     }
 
+    public enum Attribute
+    {
+        Service = 0,
+        Data = 1,
+        Configuration = 2,
+        Frequence = 3
+    }
+
     static class SensorsExtensions
     {
         /// <summary>
@@ -28,19 +36,21 @@ namespace BLE_Demo.Model
         /// IMPORTANT: CASE SENSITIVE for some reason. Leads to unhandled exception otherwise.
         /// </summary>
         private const String TI_BASE_UUID = "f000XXXX-0451-4000-b000-000000000000";
+        private const String TI_KEYS_UUID = "0000XXXX-0000-1000-8000-00805f9b34fb";
 
-        public static String GetServiceUUID(this Sensor sensor)
+        public static String GetUUID(this Sensor sensor, Attribute attribute)
         {
+            String baseUUID;
+
+            //Set baseUUID
             if (Sensor.Keys == sensor)
-                return "0000ffe0-0000-1000-8000-00805f9b34fb";
-            return TI_BASE_UUID.Replace("XXXX", ((int)sensor).ToString("x4"));
+                baseUUID = TI_KEYS_UUID; //Keys has a different Base UUID than all other services
+            else
+                baseUUID = TI_BASE_UUID; 
+
+            //Return base UUID with replacements that reflect which sensor and what attribute we want
+            return baseUUID.Replace("XXXX", ((int)sensor+(int)attribute).ToString("x4"));
         }
 
-        public static String GetDataUUID(this Sensor sensor)
-        {
-            if (Sensor.Keys == sensor)
-                return "0000ffe1-0000-1000-8000-00805f9b34fb";
-            return TI_BASE_UUID.Replace("XXXX", ((int)sensor + 1).ToString("x4"));
-        }
     }
 }
