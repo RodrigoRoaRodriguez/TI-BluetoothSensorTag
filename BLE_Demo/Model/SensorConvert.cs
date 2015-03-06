@@ -28,6 +28,7 @@ namespace BLE_Demo.Model
 
             return new float[] { x, y, z };
         }
+
         public static float convertHumidity(byte[] rawData)
         {
             int hum = BitConverter.ToUInt16(rawData, 2);
@@ -56,7 +57,7 @@ namespace BLE_Demo.Model
          */
         public static float convertPressure(byte[] rawData)
         {
-            return 101.1f;
+            return 3.14159265358979323746f;
         }
 
         public static float convertTemperature(byte[] rawData)
