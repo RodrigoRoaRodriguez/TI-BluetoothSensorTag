@@ -38,6 +38,7 @@ namespace UUID_Test
                 Console.WriteLine("Buttons:");
 
                 executeOnNotification(Sensor.Keys, buttonPressed);
+                executeOnNotification(Sensor.Accelerometer, NotifyAccelerometer);
 
                 Console.ReadLine();//This is only so that terminal doesn't close immediately
 
@@ -154,6 +155,48 @@ namespace UUID_Test
                 //Reaturn event handler for first characteristic
                 return characteristics[0];
             }
+
+
+            static async void NotifyAccelerometer(GattCharacteristic sender, GattValueChangedEventArgs args)
+            {
+                byte[] rawData = getDataBytes(args);
+                Console.WriteLine(rawData[0] + " " + rawData[1] + " " + rawData[2]);
+            }
+
+
+
+            //async void NotifyGyroscope(GattCharacteristic sender, GattValueChangedEventArgs args)
+            //{
+            //    byte[] rawData = getDataBytes(args);
+            //    float[] vals = SensorConvert.convertGyroscope(rawData);
+            //    Console.WriteLine(vals[0] + " " + vals[1] + " " + vals[2]);
+            //}
+
+            ////Read values method
+            ////Notification event handler
+            //async void NotifyHumidity(GattCharacteristic sender, GattValueChangedEventArgs args)
+            //{
+            //    byte[] rawData = getDataBytes(args);
+            //    float acthum = SensorConvert.convertHumidity(rawData);
+            //    Console.WriteLine(acthum);
+            //}
+
+
+            //async void NotifyMagnetometer(GattCharacteristic sender, GattValueChangedEventArgs args)
+            //{
+            //    byte[] rawData = getDataBytes(args);
+            //    Console.WriteLine(rawData[0]+ " " + rawData[1]+ " " + rawData[2]);
+            //}
+
+
+            //async void NotifyTemperature(GattCharacteristic sender, GattValueChangedEventArgs args)
+            //{
+            //byte[] rawData = getDataBytes(args);
+            //float temp = SensorConvert.convertTemperature(rawData);
+            //Console.WriteLine(temp);
+            //}
+
+
         }
     }
 }

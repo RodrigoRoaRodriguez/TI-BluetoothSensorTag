@@ -4,8 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
+using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Devices.Enumeration;
 using Windows.Storage.Streams;
+
 using BLE_Demo.Model;
 
 namespace BLE_Demo.Model
@@ -18,11 +20,11 @@ namespace BLE_Demo.Model
         /// </summary>
         /// <param name="sensor">the sensor you want to read</param>
         /// <returns>the GATT characteristic</returns>
-        public static async Task<GattCharacteristic> GetCharacteristic(Sensor sensor)
+        public static async Task<GattCharacteristic> GetCharacteristic(Sensor sensor, Attribute attribute)
         {
 
             //Get a query for devices with this service
-            string deviceSelector = GattDeviceService.GetDeviceSelectorFromUuid(new Guid(sensor.GetServiceUUID()));
+            string deviceSelector = GattDeviceService.GetDeviceSelectorFromUuid(new Guid(sensor.GetUUID(Attribute.Service)));
 
             //seek devices using the query
             var deviceCollection = await DeviceInformation.FindAllAsync(deviceSelector);
@@ -33,11 +35,11 @@ namespace BLE_Demo.Model
             if (device == null)
                 throw new Exception("Device not found.");
 
-            // using the id get the service
+            // use the id to get the service
             GattDeviceService service = await GattDeviceService.FromIdAsync(device.Id);
 
-            //get all characteristics
-            IReadOnlyList<GattCharacteristic> characteristics = service.GetCharacteristics(new Guid(sensor.GetDataUUID()));
+            //get matching characteristic
+            IReadOnlyList<GattCharacteristic> characteristics = service.GetCharacteristics(new Guid(sensor.GetUUID(attribute)));
 
             if (characteristics.Count == 0)
                 throw new Exception("characteristic not found.");
@@ -53,10 +55,10 @@ namespace BLE_Demo.Model
         /// </summary>
         /// <param name="sensor"> the targeted sensor</param>
         /// <param name="methodToExecute"> the method to be called on value change</param>
-        public static async void executeOnNotification(Sensor sensor, Windows.Foundation.TypedEventHandler<GattCharacteristic, GattValueChangedEventArgs> methodToExecute)
+        public static async Task executeOnNotification(Sensor sensor, Windows.Foundation.TypedEventHandler<GattCharacteristic, GattValueChangedEventArgs> methodToExecute)
         {
             //Get gatt characteristic
-            GattCharacteristic characteristic = await GetCharacteristic(sensor);
+            GattCharacteristic characteristic = await GetCharacteristic(sensor, Attribute.Data);
 
             //Enable notifications
             GattCommunicationStatus status = await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
@@ -65,6 +67,16 @@ namespace BLE_Demo.Model
             characteristic.ValueChanged += methodToExecute;
 
         }
+
+        public static async Task dispose(Sensor sensor)
+        {
+            //Get gatt characteristic
+            GattCharacteristic characteristic = await GetCharacteristic(sensor, Attribute.Data);
+
+            //Enable notifications
+            GattCommunicationStatus status = await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None);
+        }
+
 
 
 
@@ -89,7 +101,7 @@ namespace BLE_Demo.Model
         public static async Task<byte[]> ReadData(Sensor sensor)
         {
             //Get characteristic
-            GattCharacteristic gattCharacteristic = await GetCharacteristic(sensor);
+            GattCharacteristic gattCharacteristic = await GetCharacteristic(sensor, Attribute.Data);
 
             //Fetch result
             GattReadResult read = await gattCharacteristic.ReadValueAsync(Windows.Devices.Bluetooth.BluetoothCacheMode.Uncached);
@@ -104,5 +116,36 @@ namespace BLE_Demo.Model
             //Finished!
             return data;
         }
+
+
+        public static async Task EnableSensor(Sensor sensor)
+        {
+            //Get  characteristic
+            GattCharacteristic gattCharacteristic = await GetCharacteristic(sensor, Attribute.Configuration);
+
+            if(sensor != Sensor.Gyroscope){
+                //Write 1 to configuration byte 
+                await gattCharacteristic.WriteValueAsync((new byte[] { 1 }).AsBuffer());
+            }else{
+                //Gyroscope is enabled differently
+                //Axis can be enabled separately:
+                //x=1, y=2, xy=3, z=4, xz = 5, yz = 6, xyz = 7
+                //We will enable XYZ.
+                await gattCharacteristic.WriteValueAsync((new byte[] { 7 }).AsBuffer());
+            }
+        }
+
+        public static async Task DisableSensor(Sensor sensor)
+        {
+            //Get  characteristic
+            GattCharacteristic gattCharacteristic = await GetCharacteristic(sensor, Attribute.Configuration);
+
+            if (sensor != Sensor.Gyroscope)
+            {
+                //Write 1 to configuration byte 
+                await gattCharacteristic.WriteValueAsync((new byte[] { 0 }).AsBuffer());
+            }
+        }
+
     }
 }
