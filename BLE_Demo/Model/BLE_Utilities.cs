@@ -44,7 +44,7 @@ namespace BLE_Demo.Model
             if (characteristics.Count == 0)
                 throw new Exception("characteristic not found.");
 
-            //Reaturn event handler for first characteristic
+            //Return first characteristic in the list.
             return characteristics[0];
         }
 
